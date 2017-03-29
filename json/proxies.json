@@ -1,0 +1,8 @@
+{
+"items" : [
+  {
+    "proxy" : "address:port",
+    "proxyAuth" : "user:pass"
+  }
+]
+}

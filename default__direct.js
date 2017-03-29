@@ -2,50 +2,24 @@
 
 var argv = require('optimist').argv;
 var Horseman = require('node-horseman');
+var needle = require('needle');
+var cheerio = require('cheerio');
 
-/*
-search = строка, окна в орле
-//count = число запросов, 1
-withProxy = использовать прокси, да/нет
-*/
-
-var search_text = argv.search || 'окна в орле';
-
-
-var userAgents = [
-	'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 YaBrowser/17.3.1.840 Yowser/2.5 Safari/537.36',
-];
-
-var proxies = [
-	{
-		proxy : 'address:port',
-		proxyAuth : 'user:pass',
-	},
-];
-
-var viewports = [
-	{
-		w : 1024,
-		h : 768,
-	},
-];
+var searchTexts = require('./json/searchtexts.json').items;
+var userAgents = require('./json/useragents.json').items;
+var proxies = require('./json/proxies.json').items;
+var viewports = require('./json/viewports.json').items;
 
 
 var getRandItem = function(arr) {
-	
 	var rand = Math.floor(Math.random() * arr.length);
-	
 	return arr[rand];
-	
 }
 
 var rand = function(min, max) {
-	
 	min = min || 0;
 	max = max || 9999999;
-	
 	return min + Math.floor(Math.random() * (max + 1 - min));
-	
 }
 
 var nextClick = function(str) {
@@ -53,10 +27,14 @@ var nextClick = function(str) {
 	var _userAgent = getRandItem(userAgents);
 	var _viewport = getRandItem(viewports);
 	//var _proxy = getRandItem(proxies);
+	str = str || getRandItem(searchTexts);
 	
 	var cfg = {
 		//cookiesFile : './cookies.txt',
 		ignoreSSLErrors : true,
+		//proxy : specify the proxy server to use address:port, default not set.
+		//proxyType : specify the proxy server type [http|socks5|none], default not set.
+		//proxyAuth : specify the auth information for the proxy user:pass, default not set.
 	};
 	
 	var horseman = new Horseman(cfg);
@@ -64,6 +42,11 @@ var nextClick = function(str) {
 	horseman
 		.userAgent(_userAgent)
 		.viewport(_viewport.w, _viewport.h);
+	
+	needle.defaults({
+		open_timeout : 60000,
+		user_agent : _userAgent
+	});
 	
 	horseman
 		//.authentication(user, password)
@@ -76,6 +59,7 @@ var nextClick = function(str) {
 			domain: 'httpbin.org',
 		}])
 		.log()
+		.scrollTo(top, left)
 		*/
 		.wait(rand(2000, 6000))
 		.type('.search2__input .input__box .input__control.input__input[name="text"]', str)
@@ -86,9 +70,78 @@ var nextClick = function(str) {
 		.waitForNextPage()
 		.log('after load result page')
 		//.screenshot('png/' + search_text + '.png')
+		.scrollTo(rand(100, 1000), 0)
 		.wait(rand(1000, 5000))
 		.log('before click on selector')
-		.waitForSelector('.serp-item.serp-adv-item .organic a.link.organic__url')
+		.scrollTo(rand(100, 1000), 0)
+		.waitForSelector('.serp-item.serp-adv-item')
+		.evaluate(function(selector){
+			//console.log(selector);
+			//console.log($(selector).attr('href'));
+			
+			var links = [];
+			var li = $(selector);
+			
+			li.each(function(index){
+				
+				var item = $(this);
+				
+				var l_main = item.find('.organic a.link.organic__url');
+				var l_path = item.find('.organic .path.organic__path a.link.path__item');
+				
+				links.push({
+					link : l_main.attr('href'),
+					target : l_path.text(),
+				});
+				
+			})
+			
+			return links;//$(selector).attr('href');
+			
+		}, '.serp-item.serp-adv-item')
+		//.attribute('.serp-item.serp-adv-item .organic a.link.organic__url', 'href')
+		.then(function(res){
+			//console.log(res);
+			
+			if(res.length) {
+				
+				var item = res[0];
+				
+				needle.get(item.link, function(error, response, body) {
+					if (!error) {
+						// body is an alias for `response.body`
+						//console.log(item.target);
+						//console.log(body);
+						
+						var $ = cheerio.load(body);
+						var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
+						url = url.split('URL=')[1];
+						url = url.substr(1, url.length - 2);
+						
+						horseman
+							.open(url)
+							.log(url)
+							.wait(rand(1000, 3000))
+							.scrollTo(rand(100, 1000), 0)
+							.wait(rand(500, 2000))
+							.scrollTo(rand(100, 1000), 0)
+							.close();
+						
+					} else {
+						
+						console.log(error);
+						
+						horseman
+							.close();
+						
+					}
+				});
+				
+			}
+			
+			return null;//horseman.close();
+		});
+		/*
 		.click('.serp-item.serp-adv-item .organic a.link.organic__url')
 		//.log('after click on selector')
 		.waitForNextPage()
@@ -107,7 +160,17 @@ var nextClick = function(str) {
 			nextClick(str);
 			return horseman.close();
 		});
-	
+		*/
 }
 
-nextClick(search_text);
+nextClick(getRandItem(searchTexts));
+
+
+/*
+needle.get('ifconfig.me/all.json', function(error, response, body) {
+	if (!error) {
+		// body is an alias for `response.body`
+		console.log(body.ip_addr); // that in this case holds a JSON-decoded object.
+	}
+});
+*/

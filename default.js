@@ -1,14 +1,21 @@
 'use strict';
 
-var userAgents = require('./useragents.json');
+var needle = require('needle');
+var proxies = require('./json/proxies.json').items;
 
-var getRandItem = function(arr) {
+needle.defaults({
+	open_timeout: 15000,
+	//user_agent: 'MyApp/1.2.3'
+});
+
+if(proxies.length) {
 	
-	var rand = Math.floor(Math.random() * arr.length);
-	
-	return arr[rand];
+	for(var i in proxies) {
+		
+		var proxy = proxies[i];
+		
+		
+		
+	}
 	
 }
-
-
-console.log(getRandItem(userAgents.items));

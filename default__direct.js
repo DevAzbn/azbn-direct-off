@@ -10,6 +10,7 @@ var userAgents = require('./json/useragents.json').items;
 var proxies = require('./json/proxies.json').items;
 var viewports = require('./json/viewports.json').items;
 
+var click_counter = 1;
 
 var getRandItem = function(arr) {
 	var rand = Math.floor(Math.random() * arr.length);
@@ -21,6 +22,70 @@ var rand = function(min, max) {
 	max = max || 9999999;
 	return min + Math.floor(Math.random() * (max + 1 - min));
 }
+
+var setNextClick = function() {
+	
+	var _interval = rand(123456, 345678);
+	
+	setTimeout(function(){
+		setNextClick();
+	}, _interval);
+	
+	nextClick(getRandItem(searchTexts));
+	
+}
+
+var userActionsOnPage = [
+	
+	/*
+	https://github.com/johntitus/node-horseman#mouseeventtype-x-y-button
+	
+	.keyboardEvent(type, key, [modifier]) type must be one of 'keyup', 'keydown', or 'keypress', which is the default. key should be a numerical value from this page. For instance, to send an "enter" key press, use .keyboardEvent('keypress',16777221).
+	.mouseEvent(type, [x, y, [button]]) type must be one of 'mouseup', 'mousedown', 'mousemove', 'doubleclick', or 'click'
+	
+	'Up': 16777235,
+	'Down': 16777237,
+	'PageDown': 16777239,
+	'PageUp': 16777238,
+	'Home': 16777232,
+	'End': 16777233,
+	*/
+	
+	function(horseman, url) {
+		
+		horseman
+			.open(url)
+			.log(url)
+			.log('page actions')
+			.wait(rand(3000, 7000))
+			.scrollTo(rand(100, 500), 0)
+			.mouseEvent('mousemove', rand(100,777), rand(100,777))
+			.wait(rand(500, 2000))
+			.mouseEvent('mousemove', rand(100,777), rand(100,777))
+			.scrollTo(rand(100, 1000), 0)
+			.wait(rand(100, 20000))
+			.keyboardEvent('keypress', 16777237)
+			.keyboardEvent('keypress', 16777237)
+			.keyboardEvent('keypress', 16777237)
+			.wait(rand(2000, 4000))
+			.keyboardEvent('keypress', 16777237)
+			.keyboardEvent('keypress', 16777237)
+			.wait(rand(2000, 20000))
+			.mouseEvent('mousemove', rand(100,2000), rand(100,3357))
+			.wait(rand(2000, 20000))
+			.keyboardEvent('keypress', 16777232)
+			.mouseEvent('mousemove', rand(100,777), rand(100,777))
+			.log('---------- /generate clicking ----------')
+			.log('')
+			.close()
+		;
+		
+		//return horseman;
+		
+	},
+	
+];
+
 
 var nextClick = function(str) {
 	
@@ -37,6 +102,15 @@ var nextClick = function(str) {
 		//proxyAuth : specify the auth information for the proxy user:pass, default not set.
 	};
 	
+	if(_proxy) {
+		if(_proxy.proxy) {
+			cfg.proxy = _proxy.proxy;
+		}
+		if(_proxy.proxy) {
+			cfg.proxyAuth = _proxy.proxyAuth;
+		}
+	}
+	
 	var horseman = new Horseman(cfg);
 	
 	horseman
@@ -50,6 +124,8 @@ var nextClick = function(str) {
 	
 	horseman
 		//.authentication(user, password)
+		.log('')
+		.log('---------- generate clicking ' + click_counter + ' ' + str + ' ----------')
 		.open('https://www.yandex.ru/')//'https://yandex.ru/search/?text=окна%20в%20орле&lr=10'
 		.log('after open yandex.ru')
 		/*
@@ -63,15 +139,16 @@ var nextClick = function(str) {
 		*/
 		.wait(rand(2000, 6000))
 		.type('.search2__input .input__box .input__control.input__input[name="text"]', str)
-		.log('after type in input: ' + str)
 		.wait(rand(500, 1500))
-		.log('before click on button')
 		.click('.search2__button button.button')
 		.waitForNextPage()
 		.log('after load result page')
 		//.screenshot('png/' + search_text + '.png')
 		.scrollTo(rand(100, 1000), 0)
 		.wait(rand(1000, 5000))
+		.keyboardEvent('keypress', 16777237)
+		.wait(rand(1000, 3000))
+		.keyboardEvent('keypress', 16777232)
 		.log('before click on selector')
 		.scrollTo(rand(100, 1000), 0)
 		.waitForSelector('.serp-item.serp-adv-item')
@@ -113,25 +190,22 @@ var nextClick = function(str) {
 						//console.log(item.target);
 						//console.log(body);
 						
+						click_counter++;
+						
 						var $ = cheerio.load(body);
 						var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
 						url = url.split('URL=')[1];
 						url = url.substr(1, url.length - 2);
 						
-						horseman
-							.open(url)
-							.log(url)
-							.wait(rand(1000, 3000))
-							.scrollTo(rand(100, 1000), 0)
-							.wait(rand(500, 2000))
-							.scrollTo(rand(100, 1000), 0)
-							.close();
+						(getRandItem(userActionsOnPage))(horseman, url);
 						
 					} else {
 						
 						console.log(error);
 						
 						horseman
+							.log('---------- /generate clicking ----------')
+							.log('')
 							.close();
 						
 					}
@@ -163,14 +237,4 @@ var nextClick = function(str) {
 		*/
 }
 
-nextClick(getRandItem(searchTexts));
-
-
-/*
-needle.get('ifconfig.me/all.json', function(error, response, body) {
-	if (!error) {
-		// body is an alias for `response.body`
-		console.log(body.ip_addr); // that in this case holds a JSON-decoded object.
-	}
-});
-*/
+setNextClick();

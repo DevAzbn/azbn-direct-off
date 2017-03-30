@@ -1,19 +1,26 @@
 'use strict';
 
-var needle = require('needle');
-//var proxies = require('./json/proxies.json').items;
 var fs = require('fs');
+var taskqueue = require('azbn-task-queue');
+
+var request = require('request').defaults({
+	url : 'http://ifconfig.co/json',
+	//method : 'GET',
+	gzip: true,
+	headers: {
+		'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36 AzbNodeEdition',
+	},
+	//timeout : 2000,
+});
+
 
 var proxies = fs.readFileSync('./tmp/proxies_list.txt', 'utf8').toString().replace(/\r/ig, '').split('\n');
 
-needle.defaults({
-	open_timeout: 15000,
-	//user_agent: 'MyApp/1.2.3'
-});
 
-var result = {
-	items : [],
-}
+
+var result = require('./json/proxies.json');
+
+
 
 if(proxies.length) {
 	
@@ -23,52 +30,81 @@ if(proxies.length) {
 			
 			if(proxy != '') {
 				
-				needle.get('http://ifconfig.co/json', {
-					proxy : proxy,
-				}, function(error, response, body) {
-					
-					console.log('Checking...', proxy);
-					
-					if (!error) {
+				taskqueue
+					.add(function(afterTask){
 						
-						var _type = response.headers['content-type'];
-						
-						if(_type) {
+						request({
+							proxy : 'http://' + proxy,
+						}, function(error, response, body){
 							
-							if(_type.toLowerCase() == 'application/json') {
+							console.log('Checking...', proxy);
+							
+							if (!error) {
 								
-								try {
+								if(response.headers['content-type']) {
 									
-									var info = JSON.parse(body);
-									console.log('**********', 'Good proxy:', proxy, info.ip);
+									var _type = response.headers['content-type'];
 									
-									result.items.push({
-										proxy : proxy,
-									});
+									if(_type.toLowerCase() == 'application/json') {
+										
+										try {
+											
+											var info = JSON.parse(body);
+											console.log('**********', 'Good proxy:', proxy, info.ip);
+											
+											result.items.push({
+												proxy : proxy,
+											});
+											
+											//fs.writeFileSync('./json/proxies.json', JSON.stringify(result));
+											
+											afterTask(proxy);
+											
+										} catch(e) {
+											
+											//console.log(e);
+											
+											afterTask(e);
+											
+										}
+										
+									} else {
+										
+										console.log('Not JSON:', proxy, _type.toLowerCase());
+										
+										afterTask(_type);
+										
+									}
 									
-									fs.writeFileSync('./json/proxies.json', JSON.stringify(result));
+								} else {
 									
-								} catch(e) {
-									
-									//console.log(e);
+									afterTask(response);
 									
 								}
 								
 							} else {
 								
-								console.log('Not JSON:', proxy, _type.toLowerCase());
+								//console.log(error);
+								
+								if(error.connect === true) {
+									console.log('Error, but connected to', proxy);
+								}
+								
+								afterTask(error);
 								
 							}
 							
-						}
+						});
 						
-					} else {
+					}, 192, function(res){
 						
-						//console.log(error);
 						
-					}
-					
-				});
+						
+					});
+				
+			} else {
+				
+				
 				
 			}
 			

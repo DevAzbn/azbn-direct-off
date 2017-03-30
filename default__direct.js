@@ -2,8 +2,8 @@
 
 var argv = require('optimist').argv;
 var Horseman = require('node-horseman');
-var needle = require('needle');
 var cheerio = require('cheerio');
+var request = require('request');
 
 var searchTexts = require('./json/searchtexts.json').items;
 var userAgents = require('./json/useragents.json').items;
@@ -117,9 +117,12 @@ var nextClick = function(str) {
 		.userAgent(_userAgent)
 		.viewport(_viewport.w, _viewport.h);
 	
-	needle.defaults({
-		open_timeout : 60000,
-		user_agent : _userAgent
+	var r = request.defaults({
+		method : 'GET',
+		proxy : 'http://' + cfg.proxy,
+		headers: {
+			'User-Agent' : _userAgent,
+		},
 	});
 	
 	horseman
@@ -184,7 +187,10 @@ var nextClick = function(str) {
 				
 				var item = res[0];
 				
-				needle.get(item.link, function(error, response, body) {
+				r({
+					url : item.link,
+				}, function(error, response, body){
+					
 					if (!error) {
 						// body is an alias for `response.body`
 						//console.log(item.target);
@@ -209,7 +215,9 @@ var nextClick = function(str) {
 							.close();
 						
 					}
+					
 				});
+				
 				
 			}
 			

@@ -91,7 +91,7 @@ var nextClick = function(str) {
 	
 	var _userAgent = getRandItem(userAgents);
 	var _viewport = getRandItem(viewports);
-	//var _proxy = getRandItem(proxies);
+	var _proxy = getRandItem(proxies);
 	str = str || getRandItem(searchTexts);
 	
 	var cfg = {

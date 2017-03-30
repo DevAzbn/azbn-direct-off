@@ -1,26 +1,26 @@
 'use strict';
 
+var cfg = {
+	proxy_timeout : 500,
+};
+
 var fs = require('fs');
 var taskqueue = require('azbn-task-queue');
 
 var request = require('request').defaults({
 	url : 'http://ifconfig.co/json',
-	//method : 'GET',
-	gzip: true,
+	method : 'GET',
+	//gzip : true,
+	timeout : 5000,
 	headers: {
 		'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36 AzbNodeEdition',
 	},
-	//timeout : 2000,
+	//
 });
-
 
 var proxies = fs.readFileSync('./tmp/proxies_list.txt', 'utf8').toString().replace(/\r/ig, '').split('\n');
 
-
-
 var result = require('./json/proxies.json');
-
-
 
 if(proxies.length) {
 	
@@ -33,11 +33,15 @@ if(proxies.length) {
 				taskqueue
 					.add(function(afterTask){
 						
+						var __is_request = new Date().getTime();
+						
+						console.log('Checking...', proxy);
+						
 						request({
 							proxy : 'http://' + proxy,
 						}, function(error, response, body){
 							
-							console.log('Checking...', proxy);
+							__is_request = 0;
 							
 							if (!error) {
 								
@@ -95,6 +99,12 @@ if(proxies.length) {
 							}
 							
 						});
+						
+						while(new Date().getTime() < (__is_request + 333)) {}
+						
+						__is_request = 0;
+						
+						afterTask(null);
 						
 					}, 192, function(res){
 						

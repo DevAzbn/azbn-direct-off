@@ -95,6 +95,7 @@ var nextClick = function(str) {
 	str = str || getRandItem(searchTexts);
 	
 	var cfg = {
+		timeout : 10000,
 		//cookiesFile : './cookies.txt',
 		ignoreSSLErrors : true,
 		//proxy : specify the proxy server to use address:port, default not set.
@@ -128,7 +129,7 @@ var nextClick = function(str) {
 	horseman
 		//.authentication(user, password)
 		.log('')
-		.log('---------- generate clicking ' + click_counter + ' ' + str + ' ----------')
+		.log('---------- generate clicking ' + click_counter + ' ' + str + ' (' + cfg.proxy + ') ----------')
 		.open('https://www.yandex.ru/')//'https://yandex.ru/search/?text=окна%20в%20орле&lr=10'
 		.log('after open yandex.ru')
 		/*

@@ -1,3 +1,4 @@
 node_modules/*
 tmp/cookies/*
 tmp/screens/*
+tmp/proxylists/*

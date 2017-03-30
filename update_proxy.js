@@ -111,6 +111,34 @@ if(proxies.length) {
 	
 	async.series(async_arr, function (__err, __results) {
 		
+		//result = require('./json/proxies.json');
+		
+		var __arr = {};
+		
+		for(var j in result.items) {
+			
+			var item = result.items[j];
+			
+			if(!__arr[item.proxy]) {
+				
+				__arr[item.proxy] = item;
+				
+				console.log(item.proxy);
+				
+			}
+			
+		}
+		
+		result.items = [];
+		
+		for(var j in __arr) {
+			
+			result.items.push(__arr[j]);
+			
+		}
+		
+		fs.writeFileSync('./json/proxies.json', JSON.stringify(result));
+		
 	});
 	
 }

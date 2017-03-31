@@ -257,7 +257,21 @@ var nextClick = function(str) {
 							
 						});
 						
+					} else {
+						
+						horseman
+							.log('---------- /generate clicking ----------')
+							.log('')
+							.close();
+						
 					}
+					
+				} else {
+					
+					horseman
+						.log('---------- /generate clicking ----------')
+						.log('')
+						.close();
 					
 				}
 				

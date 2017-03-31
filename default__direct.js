@@ -79,6 +79,18 @@ var userActionsOnPage = [
 			.mouseEvent('mousemove', rand(100,777), rand(100,777))
 			.log('---------- /generate clicking ----------')
 			.log('')
+			.evaluate(function(){
+				//console.log(selector);
+				//console.log($(selector).attr('href'));
+				
+				for(var i in window) {
+					if(i.toLowerCase().indexOf('yacounter') > -1) {
+						window[i] = null;
+					}
+				}
+				
+				return null;
+			})
 			.close()
 		;
 		
@@ -166,6 +178,12 @@ var nextClick = function(str) {
 			.evaluate(function(selector){
 				//console.log(selector);
 				//console.log($(selector).attr('href'));
+				
+				for(var i in window) {
+					if(i.toLowerCase().indexOf('yacounter') > -1) {
+						window[i] = null;
+					}
+				}
 				
 				var links = [];
 				var li = $(selector);

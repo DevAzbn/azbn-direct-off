@@ -89,177 +89,185 @@ var userActionsOnPage = [
 
 var nextClick = function(str) {
 	
-	var _userAgent = getRandItem(userAgents);
-	var _viewport = getRandItem(viewports);
-	var _proxy = getRandItem(proxies);
-	str = str || getRandItem(searchTexts);
-	
-	var horseman_cfg = {
-		timeout : 15000,
-		//cookiesFile : './cookies.txt',
-		ignoreSSLErrors : true,
-		//proxy : specify the proxy server to use address:port, default not set.
-		//proxyType : specify the proxy server type [http|socks5|none], default not set.
-		//proxyAuth : specify the auth information for the proxy user:pass, default not set.
-	};
-	
-	/*
-	if(_proxy) {
-		if(_proxy.proxy) {
-			horseman_cfg.proxy = _proxy.proxy;
-		}
-		if(_proxy.proxy) {
-			horseman_cfg.proxyAuth = _proxy.proxyAuth;
-		}
-	}
-	*/
-	
-	var horseman = new Horseman(horseman_cfg);
-	
-	horseman
-		.userAgent(_userAgent)
-		.viewport(_viewport.w, _viewport.h);
-	
-	var r = request.defaults({
-		method : 'GET',
-		proxy : 'http://' + _proxy.proxy,
-		headers: {
-			'User-Agent' : _userAgent,
-		},
-	});
-	
-	horseman
-		//.authentication(user, password)
-		.log('')
-		.log('---------- generate clicking ' + click_counter + ' ' + str + ' (' + _proxy.proxy + ') ----------')
-		.open('https://www.yandex.ru/')//'https://yandex.ru/search/?text=окна%20в%20орле&lr=10'
-		.log('after open yandex.ru')
+	try {
+		
+		var _userAgent = getRandItem(userAgents);
+		var _viewport = getRandItem(viewports);
+		var _proxy = getRandItem(proxies);
+		str = str || getRandItem(searchTexts);
+		
+		var horseman_cfg = {
+			timeout : 15000,
+			//cookiesFile : './cookies.txt',
+			ignoreSSLErrors : true,
+			//proxy : specify the proxy server to use address:port, default not set.
+			//proxyType : specify the proxy server type [http|socks5|none], default not set.
+			//proxyAuth : specify the auth information for the proxy user:pass, default not set.
+		};
+		
 		/*
-		.cookies([{
-			name: 'test',
-			value: 'cookie',
-			domain: 'httpbin.org',
-		}])
-		.log()
-		.scrollTo(top, left)
+		if(_proxy) {
+			if(_proxy.proxy) {
+				horseman_cfg.proxy = _proxy.proxy;
+			}
+			if(_proxy.proxy) {
+				horseman_cfg.proxyAuth = _proxy.proxyAuth;
+			}
+		}
 		*/
-		.wait(rand(2000, 6000))
-		.type('.search2__input .input__box .input__control.input__input[name="text"]', str)
-		.wait(rand(500, 1500))
-		.click('.search2__button button.button')
-		.waitForNextPage()
-		.log('after load result page')
-		//.screenshot('png/' + search_text + '.png')
-		.scrollTo(rand(100, 1000), 0)
-		.wait(rand(1000, 5000))
-		.keyboardEvent('keypress', 16777237)
-		.wait(rand(1000, 3000))
-		.keyboardEvent('keypress', 16777232)
-		.log('before click on selector')
-		.scrollTo(rand(100, 1000), 0)
-		.screenshot('./tmp/screens/yandex_' + str + '_' + (new Date().getTime()) + '_before_click.png')
-		.waitForSelector('.serp-item.serp-adv-item')
-		.evaluate(function(selector){
-			//console.log(selector);
-			//console.log($(selector).attr('href'));
-			
-			var links = [];
-			var li = $(selector);
-			
-			li.each(function(index){
+		
+		var horseman = new Horseman(horseman_cfg);
+		
+		horseman
+			.userAgent(_userAgent)
+			.viewport(_viewport.w, _viewport.h);
+		
+		var r = request.defaults({
+			method : 'GET',
+			proxy : 'http://' + _proxy.proxy,
+			headers: {
+				'User-Agent' : _userAgent,
+			},
+		});
+		
+		horseman
+			//.authentication(user, password)
+			.log('')
+			.log('---------- generate clicking ' + click_counter + ' ' + str + ' (' + _proxy.proxy + ') ----------')
+			.open('https://www.yandex.ru/')//'https://yandex.ru/search/?text=окна%20в%20орле&lr=10'
+			.log('after open yandex.ru')
+			/*
+			.cookies([{
+				name: 'test',
+				value: 'cookie',
+				domain: 'httpbin.org',
+			}])
+			.log()
+			.scrollTo(top, left)
+			*/
+			.wait(rand(2000, 6000))
+			.type('.search2__input .input__box .input__control.input__input[name="text"]', str)
+			.wait(rand(500, 1500))
+			.click('.search2__button button.button')
+			.waitForNextPage()
+			.log('after load result page')
+			//.screenshot('png/' + search_text + '.png')
+			.scrollTo(rand(100, 1000), 0)
+			.wait(rand(1000, 5000))
+			.keyboardEvent('keypress', 16777237)
+			.wait(rand(1000, 3000))
+			.keyboardEvent('keypress', 16777232)
+			.log('before click on selector')
+			.scrollTo(rand(100, 1000), 0)
+			.screenshot('./tmp/screens/yandex_' + str + '_' + (new Date().getTime()) + '_before_click.png')
+			.waitForSelector('.serp-item.serp-adv-item')
+			.evaluate(function(selector){
+				//console.log(selector);
+				//console.log($(selector).attr('href'));
 				
-				var item = $(this);
+				var links = [];
+				var li = $(selector);
 				
-				var l_main = item.find('.organic a.link.organic__url');
-				var l_path = item.find('.organic .path.organic__path a.link.path__item');
-				
-				links.push({
-					link : l_main.attr('href'),
-					target : l_path.text(),
-				});
-				
-			})
-			
-			return links;//$(selector).attr('href');
-			
-		}, '.serp-item.serp-adv-item')
-		//.attribute('.serp-item.serp-adv-item .organic a.link.organic__url', 'href')
-		.then(function(res){
-			//console.log(res);
-			
-			if(res.length) {
-				
-				var item = res[0];
-				
-				r({
-					url : item.link,
-				}, function(error, response, body){
+				li.each(function(index){
 					
-					if (!error) {
-						// body is an alias for `response.body`
-						//console.log(item.target);
-						//console.log(body);
+					var item = $(this);
+					
+					var l_main = item.find('.organic a.link.organic__url');
+					var l_path = item.find('.organic .path.organic__path a.link.path__item');
+					
+					links.push({
+						link : l_main.attr('href'),
+						target : l_path.text(),
+					});
+					
+				})
+				
+				return links;//$(selector).attr('href');
+				
+			}, '.serp-item.serp-adv-item')
+			//.attribute('.serp-item.serp-adv-item .organic a.link.organic__url', 'href')
+			.then(function(res){
+				//console.log(res);
+				
+				if(res.length) {
+					
+					var item = res[0];
+					
+					r({
+						url : item.link,
+					}, function(error, response, body){
 						
-						click_counter++;
-						
-						var $ = cheerio.load(body);
-						var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
-						
-						if(url && url != '') {
+						if (!error) {
+							// body is an alias for `response.body`
+							//console.log(item.target);
+							//console.log(body);
 							
-							url = url.split('URL=')[1];
-							url = url.substr(1, url.length - 2);
+							click_counter++;
 							
-							(getRandItem(userActionsOnPage))(horseman, url);
+							var $ = cheerio.load(body);
+							var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
+							
+							if(url && url != '') {
+								
+								url = url.split('URL=')[1];
+								url = url.substr(1, url.length - 2);
+								
+								(getRandItem(userActionsOnPage))(horseman, url);
+								
+							} else {
+								
+								horseman
+									.log('No URL on redirect page!')
+									.log('---------- /generate clicking ----------')
+									.log('')
+									.close();
+								
+							}
 							
 						} else {
 							
+							console.log(error);
+							
 							horseman
-								.log('No URL on redirect page!')
 								.log('---------- /generate clicking ----------')
 								.log('')
 								.close();
 							
 						}
 						
-					} else {
-						
-						console.log(error);
-						
-						horseman
-							.log('---------- /generate clicking ----------')
-							.log('')
-							.close();
-						
-					}
+					});
 					
-				});
+					
+				}
 				
-				
-			}
-			
-			return null;//horseman.close();
-		});
-		/*
-		.click('.serp-item.serp-adv-item .organic a.link.organic__url')
-		//.log('after click on selector')
-		.waitForNextPage()
-		//.count('.serp-item.serp-adv-item:nth-child(1) .organic a.link.organic__url')
-		//.cookies()
-		//.tabCount()
-		.switchToTab(1)
-		.log('after switch to opened tab')
-		.wait(rand(1000, 5000))
-		//
-		.screenshot('./screens/' + str + '_' + (new Date().getTime()) + '.png')
-		.url()
-		.then(function(res){
-			console.log(res);
-			horseman.wait(rand(20000, 120000))
-			nextClick(str);
-			return horseman.close();
-		});
-		*/
+				return null;//horseman.close();
+			});
+			/*
+			.click('.serp-item.serp-adv-item .organic a.link.organic__url')
+			//.log('after click on selector')
+			.waitForNextPage()
+			//.count('.serp-item.serp-adv-item:nth-child(1) .organic a.link.organic__url')
+			//.cookies()
+			//.tabCount()
+			.switchToTab(1)
+			.log('after switch to opened tab')
+			.wait(rand(1000, 5000))
+			//
+			.screenshot('./screens/' + str + '_' + (new Date().getTime()) + '.png')
+			.url()
+			.then(function(res){
+				console.log(res);
+				horseman.wait(rand(20000, 120000))
+				nextClick(str);
+				return horseman.close();
+			});
+			*/
+		
+	} catch(e) {
+		
+		console.log(e);
+		
+	}
 }
 
 setNextClick();

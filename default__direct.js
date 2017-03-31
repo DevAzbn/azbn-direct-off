@@ -103,6 +103,7 @@ var nextClick = function(str) {
 		//proxyAuth : specify the auth information for the proxy user:pass, default not set.
 	};
 	
+	/*
 	if(_proxy) {
 		if(_proxy.proxy) {
 			horseman_cfg.proxy = _proxy.proxy;
@@ -111,6 +112,7 @@ var nextClick = function(str) {
 			horseman_cfg.proxyAuth = _proxy.proxyAuth;
 		}
 	}
+	*/
 	
 	var horseman = new Horseman(horseman_cfg);
 	
@@ -155,7 +157,7 @@ var nextClick = function(str) {
 		.keyboardEvent('keypress', 16777232)
 		.log('before click on selector')
 		.scrollTo(rand(100, 1000), 0)
-		.screenshot('./screens/yandex_' + str + '_' + (new Date().getTime()) + '_before_click.png')
+		.screenshot('./tmp/screens/yandex_' + str + '_' + (new Date().getTime()) + '_before_click.png')
 		.waitForSelector('.serp-item.serp-adv-item')
 		.evaluate(function(selector){
 			//console.log(selector);

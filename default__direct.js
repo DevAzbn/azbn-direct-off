@@ -170,29 +170,36 @@ var nextClick = function(str) {
 				var links = [];
 				var li = $(selector);
 				
-				li.each(function(index){
-					
-					var item = $(this);
-					
-					var l_main = item.find('.organic a.link.organic__url');
-					var l_path = item.find('.organic .path.organic__path a.link.path__item');
-					
-					if(base_domain != '') {
+				if(li.length) {
+					li.each(function(index){
 						
-						if(l_path.text().toLowerCase().indexOf(base_domain) > -1) {
+						var item = $(this);
+						
+						var l_main = item.find('.organic a.link.organic__url');
+						var l_path = item.find('.organic .path.organic__path a.link.path__item');
+						
+						if(base_domain != '') {
+							
+							if(l_path.text().toLowerCase().indexOf(base_domain) > -1) {
+								
+								links.push({
+									link : l_main.attr('href'),
+									target : l_path.text(),
+								});
+								
+							}
+							
+						} else {
+							
+							links.push({
+								link : l_main.attr('href'),
+								target : l_path.text(),
+							});
 							
 						}
 						
-					} else {
-						
-						links.push({
-							link : l_main.attr('href'),
-							target : l_path.text(),
-						});
-						
-					}
-					
-				})
+					});
+				}
 				
 				return links;//$(selector).attr('href');
 				

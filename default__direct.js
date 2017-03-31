@@ -12,6 +12,8 @@ var viewports = require('./json/viewports.json').items;
 
 var click_counter = 1;
 
+var base_domain = (argv.domain || '').toLowerCase();
+
 var getRandItem = function(arr) {
 	var rand = Math.floor(Math.random() * arr.length);
 	return arr[rand];
@@ -175,10 +177,20 @@ var nextClick = function(str) {
 					var l_main = item.find('.organic a.link.organic__url');
 					var l_path = item.find('.organic .path.organic__path a.link.path__item');
 					
-					links.push({
-						link : l_main.attr('href'),
-						target : l_path.text(),
-					});
+					if(base_domain != '') {
+						
+						if(l_path.text().toLowerCase().indexOf(base_domain) > -1) {
+							
+						}
+						
+					} else {
+						
+						links.push({
+							link : l_main.attr('href'),
+							target : l_path.text(),
+						});
+						
+					}
 					
 				})
 				

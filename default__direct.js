@@ -12,7 +12,7 @@ var viewports = require('./json/viewports.json').items;
 
 var click_counter = 1;
 
-var base_domain = (argv.domain || '').toLowerCase();
+var __base_domain = (argv.domain || '').toLowerCase();
 
 var getRandItem = function(arr) {
 	var rand = Math.floor(Math.random() * arr.length);
@@ -178,25 +178,10 @@ var nextClick = function(str) {
 						var l_main = item.find('.organic a.link.organic__url');
 						var l_path = item.find('.organic .path.organic__path a.link.path__item');
 						
-						if(base_domain != '') {
-							
-							if(l_path.text().toLowerCase().indexOf(base_domain) > -1) {
-								
-								links.push({
-									link : l_main.attr('href'),
-									target : l_path.text(),
-								});
-								
-							}
-							
-						} else {
-							
-							links.push({
-								link : l_main.attr('href'),
-								target : l_path.text(),
-							});
-							
-						}
+						links.push({
+							link : l_main.attr('href'),
+							target : l_path.text().toLowerCase(),
+						});
 						
 					});
 				}
@@ -210,52 +195,69 @@ var nextClick = function(str) {
 				
 				if(res.length) {
 					
-					var item = res[0];
+					var __res = [];
 					
-					r({
-						url : item.link,
-					}, function(error, response, body){
+					for(var i in res) {
 						
-						if (!error) {
-							// body is an alias for `response.body`
-							//console.log(item.target);
-							//console.log(body);
+						if(res[i].target.indexOf(__base_domain) < 0) {
+							//delete res[i];
+						} else {
+							__res.push(res[i]);
+						}
+						
+						//if(l_path.html().toLowerCase().indexOf(__base_domain) > -1) {
+						
+					}
+					
+					if(__res.length) {
+						
+						var item = __res[0];
+						
+						r({
+							url : item.link,
+						}, function(error, response, body){
 							
-							click_counter++;
-							
-							var $ = cheerio.load(body);
-							var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
-							
-							if(url && url != '') {
+							if (!error) {
+								// body is an alias for `response.body`
+								//console.log(item.target);
+								//console.log(body);
 								
-								url = url.split('URL=')[1];
-								url = url.substr(1, url.length - 2);
+								click_counter++;
 								
-								(getRandItem(userActionsOnPage))(horseman, url);
+								var $ = cheerio.load(body);
+								var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
+								
+								if(url && url != '') {
+									
+									url = url.split('URL=')[1];
+									url = url.substr(1, url.length - 2);
+									
+									(getRandItem(userActionsOnPage))(horseman, url);
+									
+								} else {
+									
+									horseman
+										.log('No URL on redirect page!')
+										.log('---------- /generate clicking ----------')
+										.log('')
+										.close();
+									
+								}
 								
 							} else {
 								
+								console.log(error);
+								
 								horseman
-									.log('No URL on redirect page!')
 									.log('---------- /generate clicking ----------')
 									.log('')
 									.close();
 								
 							}
 							
-						} else {
-							
-							console.log(error);
-							
-							horseman
-								.log('---------- /generate clicking ----------')
-								.log('')
-								.close();
-							
-						}
+						});
 						
-					});
-					
+					}
 					
 				}
 				

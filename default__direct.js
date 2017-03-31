@@ -204,10 +204,23 @@ var nextClick = function(str) {
 						
 						var $ = cheerio.load(body);
 						var url = $('head noscript meta[http-equiv="refresh"]').attr('content');
-						url = url.split('URL=')[1];
-						url = url.substr(1, url.length - 2);
 						
-						(getRandItem(userActionsOnPage))(horseman, url);
+						if(url && url != '') {
+							
+							url = url.split('URL=')[1];
+							url = url.substr(1, url.length - 2);
+							
+							(getRandItem(userActionsOnPage))(horseman, url);
+							
+						} else {
+							
+							horseman
+								.log('No URL on redirect page!')
+								.log('---------- /generate clicking ----------')
+								.log('')
+								.close();
+							
+						}
 						
 					} else {
 						

@@ -94,7 +94,7 @@ var nextClick = function(str) {
 	var _proxy = getRandItem(proxies);
 	str = str || getRandItem(searchTexts);
 	
-	var cfg = {
+	var horseman_cfg = {
 		timeout : 10000,
 		//cookiesFile : './cookies.txt',
 		ignoreSSLErrors : true,
@@ -105,14 +105,14 @@ var nextClick = function(str) {
 	
 	if(_proxy) {
 		if(_proxy.proxy) {
-			cfg.proxy = _proxy.proxy;
+			horseman_cfg.proxy = _proxy.proxy;
 		}
 		if(_proxy.proxy) {
-			cfg.proxyAuth = _proxy.proxyAuth;
+			horseman_cfg.proxyAuth = _proxy.proxyAuth;
 		}
 	}
 	
-	var horseman = new Horseman(cfg);
+	var horseman = new Horseman(horseman_cfg);
 	
 	horseman
 		.userAgent(_userAgent)
@@ -120,7 +120,7 @@ var nextClick = function(str) {
 	
 	var r = request.defaults({
 		method : 'GET',
-		proxy : 'http://' + cfg.proxy,
+		proxy : 'http://' + _proxy.proxy,
 		headers: {
 			'User-Agent' : _userAgent,
 		},
@@ -155,6 +155,7 @@ var nextClick = function(str) {
 		.keyboardEvent('keypress', 16777232)
 		.log('before click on selector')
 		.scrollTo(rand(100, 1000), 0)
+		.screenshot('./screens/yandex_' + str + '_' + (new Date().getTime()) + '_before_click.png')
 		.waitForSelector('.serp-item.serp-adv-item')
 		.evaluate(function(selector){
 			//console.log(selector);

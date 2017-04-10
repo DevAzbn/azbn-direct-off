@@ -11,7 +11,7 @@ var userAgents = require('./json/useragents.json').items;
 var proxies = require('./json/proxies.json').items;
 var viewports = require('./json/viewports.json').items;
 
-var click_counter = 1;
+var click_counter = 0;
 
 //var __base_domain = (argv.domain || '').toLowerCase();
 
@@ -41,6 +41,8 @@ var setNextClick = function() {
 var nextClick = function(url_data) {
 	
 	try {
+		
+		click_counter++;
 		
 		var _userAgent = getRandItem(userAgents);
 		var _viewport = getRandItem(viewports);
@@ -100,10 +102,12 @@ var nextClick = function(url_data) {
 			*/
 			.wait(rand(1 * 1000, 10 * 1000))
 			.click('#aside > div.voting > div > form[name="voteForm"] > ol > li.li_in_mobile[data-vote-value="' + _vote + '"] > label > span')
-			.screenshot('./tmp/screens/rrunet_' + _date + '_after_select.png')
+			.screenshot('./tmp/screens/rrunet_' + _vote + '_' + _date + '_after_select.png')
 			.click('#aside > div.voting > div > form[name="voteForm"] > button')
+			//.screenshot('./tmp/screens/rrunet_' + _date + '_after_select.png')
 			//.waitForNextPage()
 			.wait(rand(1000, 3000))
+			//.screenshot('./tmp/screens/rrunet_' + _date + '_after_select.png')
 			.log('after vote')
 			.then(function(res){
 				//console.log(res);

@@ -28,7 +28,7 @@ var rand = function(min, max) {
 
 var setNextClick = function() {
 	
-	var _interval = rand(10 * 1000, 210 * 1000);
+	var _interval = rand(10 * 1000, 120 * 1000);
 	
 	setTimeout(function(){
 		setNextClick();

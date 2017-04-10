@@ -1,0 +1,16 @@
+#aside > div.voting > div > form > ol > li.li_in_mobile.hide.active > label > span
+#aside > div.voting > div > form > button
+
+Мебель и интерьер
+inmyroom.ru
+http://www.ratingruneta.ru/awards_vote/?site_id=40
+
+
+Мебель и интерьер
+intdez.ru
+http://www.ratingruneta.ru/awards_vote/?site_id=408
+
+
+Мебель и интерьер
+parket-craft.ru
+http://www.ratingruneta.ru/awards_vote/?site_id=215

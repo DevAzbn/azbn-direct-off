@@ -28,13 +28,14 @@ var rand = function(min, max) {
 
 var setNextClick = function() {
 	
-	var _interval = rand(10 * 1000, 120 * 1000);
+	var _interval = rand(1 * 1000, 10 * 1000);
 	
 	setTimeout(function(){
 		setNextClick();
 	}, _interval);
 	
-	nextClick(getRandItem(clickUrls));
+	//nextClick(getRandItem(clickUrls));
+	nextClick('http://localhost:3000/');
 	
 }
 
@@ -47,8 +48,8 @@ var nextClick = function(url_data) {
 		var _userAgent = getRandItem(userAgents);
 		var _viewport = getRandItem(viewports);
 		var _proxy = getRandItem(proxies);
-		var _url = url_data || getRandItem(clickUrls);
-		var _vote = getRandItem(_url.votes);
+		var _url = {url : 'http://localhost:3000/'};//url_data || getRandItem(clickUrls);
+		var _vote = getRandItem([1,2,3]);
 		
 		var horseman_cfg = {
 			timeout : 15000,
@@ -78,7 +79,7 @@ var nextClick = function(url_data) {
 		
 		var r = request.defaults({
 			method : 'GET',
-			proxy : 'http://' + _proxy.proxy,
+			//proxy : 'http://' + _proxy.proxy,
 			headers: {
 				'User-Agent' : _userAgent,
 			},
@@ -89,9 +90,9 @@ var nextClick = function(url_data) {
 		horseman
 			//.authentication(user, password)
 			.log('')
-			.log('---------- generate clicking ' + click_counter + ' ' + _url.url + ' (' + _proxy.proxy + ') ----------')
+			//.log('---------- generate clicking ' + click_counter + ' ' + _url.url + ' (' + _proxy.proxy + ') ----------')
 			.open(_url.url)//
-			.log('after open link')
+			//.log('after open link')
 			.log('vote: ' + _date + ', ' + _vote)
 			/*
 			.cookies([{
@@ -100,13 +101,13 @@ var nextClick = function(url_data) {
 				domain: 'httpbin.org',
 			}])
 			*/
-			.wait(rand(1 * 1000, 10 * 1000))
-			.click('#aside > div.voting > div > form[name="voteForm"] > ol > li.li_in_mobile[data-vote-value="' + _vote + '"] > label > span')
-			.screenshot('./tmp/screens/rrunet_' + _vote + '_' + _date + '_after_select.png')
-			.click('#aside > div.voting > div > form[name="voteForm"] > button')
+			.wait(rand(1 * 1000, 5 * 1000))
+			.click('.header-menu > .item:nth-child(1) .item:nth-child(' + _vote + ')')
+			.screenshot('./tmp/screens/localhost_' + _vote + '_' + _date + '_after_select.png')
+			//.click('#aside > div.voting > div > form[name="voteForm"] > button')
 			//.screenshot('./tmp/screens/rrunet_' + _date + '_after_select.png')
 			//.waitForNextPage()
-			.wait(rand(1000, 3000))
+			//.wait(rand(1000, 3000))
 			//.screenshot('./tmp/screens/rrunet_' + _date + '_after_select.png')
 			.log('after vote')
 			.then(function(res){

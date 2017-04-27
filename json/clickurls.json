@@ -5,6 +5,14 @@
 		"votes" : [5]
 	},
 	{
+		"url" : "http://www.ratingruneta.ru/awards_vote/?site_id=432",
+		"votes" : [2,3]
+	},
+	{
+		"url" : "http://www.ratingruneta.ru/awards_vote/?site_id=455",
+		"votes" : [2,3]
+	},
+	{
 		"url" : "http://www.ratingruneta.ru/awards_vote/?site_id=40",
 		"votes" : [2,3]
 	},
@@ -26,6 +34,10 @@
 	},
 	{
 		"url" : "http://www.ratingruneta.ru/awards_vote/?site_id=324",
+		"votes" : [2,3]
+	},
+	{
+		"url" : "http://www.ratingruneta.ru/awards_vote/?site_id=487",
 		"votes" : [2,3]
 	},
 	{
